@@ -1,9 +1,12 @@
 import {Api, IPost, IPostsModule} from "../types";
 import { operationIdStorage } from "../utils";
+import {PluginLoggerInstance} from "../index";
+import {RuntimeError} from "../classes/errors";
 
 export class PostsModule implements IPostsModule {
   private posts: IPost[] = [];
   private readonly api: Api;
+  private readonly postsModuleLogger = PluginLoggerInstance.createChildLogger(['PostsModule']);
 
   constructor(api: Api) {
     this.api = api;
@@ -14,31 +17,27 @@ export class PostsModule implements IPostsModule {
   }
 
   async addPost(post: IPost) {
-    const operationId = operationIdStorage.getStore();
-    console.log('addPost', operationId);
+    this.postsModuleLogger.log('addPost', post);
     this.posts.push(post);
   }
 
   async deletePost(postId: number) {
-    const operationId = operationIdStorage.getStore();
-    console.log('deletePost', operationId);
+    this.postsModuleLogger.log('deletePost', postId);
     this.posts = this.posts.filter(({ id }) => id !== postId);
   }
 
   async getPost(postId: number): Promise<IPost | undefined> {
-    const operationId = operationIdStorage.getStore();
-    console.log('getPost', operationId);
+    this.postsModuleLogger.log('getPost', postId);
     return this.posts.find(({ id }) => id === postId);
   }
 
   async savePosts(): Promise<void> {
-    const operationId = operationIdStorage.getStore();
-    console.log('savePosts', operationId);
+    this.postsModuleLogger.log('savePosts');
     try {
       await this.api.savePosts(this.posts);
       this.posts = [];
     } catch (error) {
-      console.log('error while saving posts', error);
+      throw new RuntimeError('error while saving posts', error as Error)
     }
   }
 }

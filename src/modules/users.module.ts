@@ -1,7 +1,8 @@
 import {Api, IUser, IUsersModule} from "../types";
-import {operationIdStorage} from "../utils";
+import {PluginLoggerInstance} from "../index";
 
 export const usersModule = (api: Api): IUsersModule => {
+  const usersModuleLogger = PluginLoggerInstance.createChildLogger(['UsersModule']);
   let users: IUser[] = [];
 
   return {
@@ -14,8 +15,7 @@ export const usersModule = (api: Api): IUsersModule => {
       users = users.filter(user => user.id !== id)
     },
     saveUsers: async () => {
-      const operationId = operationIdStorage.getStore();
-      console.log('saveUsers', operationId);
+      usersModuleLogger.log('saveUsers');
       await api.saveUsers(users);
       users = [];
     },

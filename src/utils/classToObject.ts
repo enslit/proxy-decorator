@@ -10,7 +10,7 @@ export const classToObject = <
 
   return keys.reduce((obj, key) => {
     if (key !== "constructor") {
-      obj[key as keyof T] = original[key as keyof T] as any;
+      obj[key as keyof T] = (original[key as keyof T] as any).bind(original);
     }
     return obj;
   }, {} as I);
